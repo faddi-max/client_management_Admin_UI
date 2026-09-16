@@ -1,10 +1,6 @@
 import { cn } from '@/utils'
 
-// Matches every pill style seen in the design:
-// - neutral: "HQ LIVE ENGINE", "NYC CLUSTER 01"
-// - warning: "3 OVERDUE", "Due Today", "High Priority", "Within 7d"
-// - primary: soft-purple count pills (e.g. sidebar-style badges reused inline)
-// - danger / success: reserved for future states (failed, completed, etc.)
+
 const VARIANTS = {
   neutral: 'bg-neutral-100 text-neutral-500',
   primary: 'bg-primary-50 text-primary-600',

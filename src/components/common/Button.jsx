@@ -17,7 +17,7 @@ const SIZES = {
 /**
  * @param {keyof typeof VARIANTS} [variant]
  * @param {keyof typeof SIZES} [size]
- * @param {import('lucide-react').LucideIcon} [icon] - optional leading icon
+ * @param {import('lucide-react').LucideIcon} [icon] 
  */
 export default function Button({
   variant = 'primary',
