@@ -1,19 +1,13 @@
 import { LayoutDashboard, Users, Diamond, CalendarClock, AlertTriangle, RefreshCw, Landmark, ArrowUpRight, CircleDot } from 'lucide-react'
 import StatCard from '@/components/common/StatCard'
 import { dashboardMock } from '@/mocks/dashboardMock'
-
+import PageHeader from '@/components/common/PageHeader'
 export default function Dashboard() {
   const { stats } = dashboardMock
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-neutral-900 flex items-center gap-3">
-          <LayoutDashboard size={28} className="text-primary-600" />
-          Dashboard
-        </h1>
-        <p className="mt-1 text-sm text-neutral-500">Overview of key metrics and recent activity.</p>
-      </div>
+       <PageHeader />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
 
