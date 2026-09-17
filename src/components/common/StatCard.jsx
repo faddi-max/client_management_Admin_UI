@@ -12,7 +12,7 @@ export default function StatCard({
   className,
 }) {
   return (
-    <Card padding="p-4" className={cn('flex flex-col gap-2', className)}>
+    <Card padding="p-3.5 sm:p-4" className={cn('flex flex-col gap-2', className)}>
       <div className="flex items-start justify-between gap-2">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
           {label}

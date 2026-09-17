@@ -34,7 +34,7 @@ export default function Modal({ open, onClose, title, children, footer, size = '
   const widths = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-lg', xl: 'max-w-2xl' }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -48,13 +48,13 @@ export default function Modal({ open, onClose, title, children, footer, size = '
         aria-modal="true"
         aria-labelledby="modal-title"
         className={cn(
-          'relative w-full bg-white rounded-2xl shadow-xl',
-          'flex flex-col max-h-[90vh]',
+          'relative w-full bg-white rounded-t-2xl sm:rounded-2xl shadow-xl',
+          'flex flex-col max-h-[92vh] sm:max-h-[90vh]',
           widths[size]
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-neutral-100">
           <h2 id="modal-title" className="text-base font-semibold text-neutral-800">
             {title}
           </h2>
@@ -68,11 +68,11 @@ export default function Modal({ open, onClose, title, children, footer, size = '
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5">{children}</div>
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-neutral-100 flex justify-end gap-2">
+          <div className="px-4 sm:px-6 py-4 border-t border-neutral-100 flex flex-wrap justify-end gap-2">
             {footer}
           </div>
         )}

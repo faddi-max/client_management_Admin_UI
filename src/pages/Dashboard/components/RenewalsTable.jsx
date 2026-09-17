@@ -18,7 +18,7 @@ const columns = [
 export default function RenewalsTable({ totalCount, dueWithinDays, rows = [], onViewAll }) {
   return (
     <Card padding="p-0">
-      <div className="flex items-center justify-between p-5 pb-3 flex-wrap gap-2">
+      <div className="flex items-start sm:items-center justify-between p-4 sm:p-5 pb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <Mail size={16} className="text-primary-600" />
           <div>

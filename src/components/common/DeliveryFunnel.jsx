@@ -18,11 +18,11 @@ export default function DeliveryFunnel({
 
   return (
     <Card>
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <div className="flex items-center gap-2">
+      <div className="flex items-start sm:items-center justify-between mb-4 flex-col sm:flex-row gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <Waypoints size={16} className="text-primary-600" />
-          <h2 className="text-sm font-bold text-neutral-900">{title}</h2>
-          {pipelineVersion && <span className="text-xs text-neutral-400">{pipelineVersion}</span>}
+          <h2 className="text-sm font-bold text-neutral-900 truncate">{title}</h2>
+          {pipelineVersion && <span className="hidden sm:inline text-xs text-neutral-400 shrink-0">{pipelineVersion}</span>}
         </div>
         <span className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
           Click phase to filter tasks

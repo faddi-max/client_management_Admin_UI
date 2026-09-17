@@ -45,8 +45,8 @@ export default function PageHeader({
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div>
-        <div className="flex items-center gap-2 mb-3">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="inline-flex items-center rounded-full bg-primary-50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-primary-600">
             {liveBadgeLabel}
           </span>
@@ -73,12 +73,12 @@ export default function PageHeader({
         </p>
       </div>
 
-      <div className="flex flex-col items-end gap-3 sm:shrink-0">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col items-stretch sm:items-end gap-2 sm:gap-3 sm:shrink-0">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
           {row1.map(renderButton)}
         </div>
         {row2.length > 0 && (
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
             {row2.map(renderButton)}
           </div>
         )}

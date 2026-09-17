@@ -6,16 +6,29 @@ import { cn } from '@/utils'
 import kineticLogo from '@/assets/logo.png'
 
 export default function Sidebar() {
-  const { collapsed, toggle } = useSidebar()
+  const { collapsed, isMobile, mobileOpen, toggle, closeMobile } = useSidebar()
+  const isCollapsed = collapsed && !isMobile
 
   return (
-    <aside
-      className={cn(
-        'relative flex flex-col h-screen bg-white border-r border-neutral-200',
-        'transition-all duration-300 ease-in-out shrink-0',
-        collapsed ? 'w-16' : 'w-64'
+    <>
+      {mobileOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          onClick={closeMobile}
+          className="fixed inset-0 z-30 bg-neutral-950/30 md:hidden"
+        />
       )}
-    >
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-40 flex h-screen w-72 flex-col border-r border-neutral-200 bg-white shadow-xl',
+          'transition-all duration-300 ease-in-out md:relative md:z-auto md:translate-x-0 md:shadow-none md:shrink-0',
+          mobileOpen ? 'translate-x-0' : '-translate-x-full',
+          isCollapsed
+            ? 'md:w-0 md:border-r-0 md:overflow-hidden'
+            : 'md:w-64'
+        )}
+      >
       {/* ── Logo ─────────────────────────────────────── */}
       <div className="flex items-center justify-center  px-4 py-4 border-b border-neutral-200 overflow-hidden">
         <img
@@ -23,7 +36,7 @@ export default function Sidebar() {
           alt="Kinetic Ops logo"
           className={cn(
             'object-contain transition-all duration-300',
-            collapsed ? 'w-8 h-8' : 'w-full max-w-[170px] h-auto max-h-12'
+            isCollapsed ? 'w-8 h-8' : 'w-full max-w-[170px] h-auto max-h-12'
           )}
         />
       </div>
@@ -32,14 +45,13 @@ export default function Sidebar() {
       <button
         onClick={toggle}
         className={cn(
-          'absolute -right-3 top-14 z-10',
-          'flex items-center justify-center w-6 h-6 rounded-full',
+          'absolute -right-3 top-14 z-10 hidden md:flex items-center justify-center w-6 h-6 rounded-full',
           'bg-white hover:bg-primary-600 hover:text-white border border-neutral-200',
           'text-neutral-400 shadow-sm transition-colors duration-200'
         )}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        {collapsed
+        {isCollapsed
           ? <ChevronRight size={12} />
           : <ChevronLeft size={12} />
         }
@@ -49,7 +61,7 @@ export default function Sidebar() {
       <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 space-y-5">
         {SIDEBAR_NAV.map(({ section, items }) => (
           <div key={section}>
-            {!collapsed && (
+            {!isCollapsed && (
               <p className="px-4 mb-1 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
                 {section}
               </p>
@@ -61,6 +73,7 @@ export default function Sidebar() {
                   <NavLink
                     to={item.path}
                     end={item.path === '/'}
+                    onClick={closeMobile}
                     className={({ isActive }) =>
                       cn(
                         'group flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm',
@@ -70,7 +83,7 @@ export default function Sidebar() {
                           : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
                       )
                     }
-                    title={collapsed ? item.label : undefined}
+                    title={isCollapsed ? item.label : undefined}
                   >
                     <item.icon
                       size={18}
@@ -78,11 +91,11 @@ export default function Sidebar() {
                       aria-hidden="true"
                     />
 
-                    {!collapsed && (
+                    {!isCollapsed && (
                       <span className="truncate">{item.label}</span>
                     )}
 
-                    {!collapsed && item.badge != null && (
+                    {!isCollapsed && item.badge != null && (
                       <span
                         className={cn(
                           'ml-auto px-1.5 py-0.5 text-[10px] font-bold rounded-full',
@@ -114,7 +127,7 @@ export default function Sidebar() {
           <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary-600 text-white text-xs font-bold shrink-0">
             K
           </div>
-          {!collapsed && (
+          {!isCollapsed && (
             <>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-neutral-900 truncate">
@@ -132,6 +145,7 @@ export default function Sidebar() {
           )}
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   )
 }

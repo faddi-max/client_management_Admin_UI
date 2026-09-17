@@ -32,7 +32,7 @@ export default function Dashboard() {
       <PageHeader actions={headerActions} />
       <Toast message={toast} />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 min-[430px]:grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         <StatCard icon={Users} iconClassName="text-sky-500" label="Total Clients" value={stats.totalClients.value}>
           <p className="flex items-center gap-1 text-xs font-medium text-green-600">
             <ArrowUpRight size={12} /> {stats.totalClients.trendLabel}
@@ -61,9 +61,9 @@ export default function Dashboard() {
           valueClassName="text-orange-600"
         >
           <div className="flex items-center gap-2">
-            <span className="flex flex-col items-center justify-center leading-none px-2 py-1 rounded-lg bg-orange-500 text-white shrink-0">
+            <span className="inline-flex items-center justify-center gap-1 leading-none px-2 py-1 rounded-lg bg-orange-500 text-white shrink-0">
               <span className="text-xs font-bold">{stats.overdueInvoices.badgeCount}</span>
-              <span className="text-[7px] font-bold tracking-wide">OVERDUE</span>
+              <span className="text-[9px] font-bold tracking-wide">OVERDUE</span>
             </span>
             <span className="text-xs font-medium text-primary-600">{stats.overdueInvoices.note}</span>
           </div>

@@ -36,7 +36,7 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-20 flex items-center gap-4 h-16 px-6 bg-white border-b border-neutral-200 shrink-0">
+    <header className="sticky top-0 z-20 flex h-14 sm:h-16 items-center gap-2 sm:gap-4 px-3 sm:px-6 bg-white border-b border-neutral-200 shrink-0">
 
       {/* ── Hamburger ──────────────────────────────────────── */}
       <button
@@ -48,7 +48,7 @@ export default function Header() {
       </button>
 
       {/* ── Breadcrumb ─────────────────────────────────────── */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm min-w-0">
+      <nav aria-label="Breadcrumb" className="flex flex-1 items-center gap-1.5 text-sm min-w-0 overflow-hidden">
         <LayoutGrid size={16} className="text-neutral-400 shrink-0" />
         {crumbs.map((crumb, idx) => (
           <span key={crumb.path} className="flex items-center gap-1.5">
@@ -58,7 +58,7 @@ export default function Header() {
             ) : (
               <Link
                 to={crumb.path}
-                className="text-neutral-400 hover:text-primary-600 transition-colors"
+                className="hidden sm:block text-neutral-400 hover:text-primary-600 transition-colors"
               >
                 {crumb.label}
               </Link>
@@ -68,8 +68,6 @@ export default function Header() {
       </nav>
 
       {/* ── Spacer ─────────────────────────────────────────── */}
-      <div className="flex-1" />
-
       {/* ── Global Search ──────────────────────────────────── */}
       <div className="relative hidden sm:block">
         <Search

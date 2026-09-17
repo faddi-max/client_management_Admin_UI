@@ -8,7 +8,7 @@ import { cn } from '@/utils'
  * @param {string} [padding] - Tailwind padding classes, override per usage
  *   (e.g. dense stat cards vs. spacious content panels)
  */
-export default function Card({ className, children, padding = 'p-5', ...props }) {
+export default function Card({ className, children, padding = 'p-4 sm:p-5', ...props }) {
   return (
     <div
       className={cn(

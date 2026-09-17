@@ -24,7 +24,7 @@ export default function CashflowVelocityCard({ subtitle, gross, segments, trend 
         <ProgressBar segments={segments} />
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-4 rounded-lg bg-indigo-50 p-4">
+      <div className="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-lg bg-indigo-50 p-3 sm:p-4">
         <div className="shrink-0">
           <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-400">Trailing 6-Week Realization</p>
           <p className="mt-1 text-xl font-bold text-primary-600">+{trend.changePercent}%</p>
@@ -33,7 +33,7 @@ export default function CashflowVelocityCard({ subtitle, gross, segments, trend 
         <div className="flex-1 min-w-0">
           <Sparkline data={trend.data} />
         </div>
-        <div className="text-right shrink-0">
+        <div className="text-left sm:text-right shrink-0">
           <p className="text-[10px] font-bold uppercase tracking-wide text-neutral-400">DSO Average</p>
           <p className="mt-1 text-sm font-bold text-neutral-900">{trend.dsoAverage} Days</p>
         </div>
