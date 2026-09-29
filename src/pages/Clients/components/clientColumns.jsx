@@ -12,16 +12,15 @@ const LOGO_GRADIENTS = {
   amber: 'from-amber-600 to-amber-800',
 }
 
-export function ClientLogo({ initials, color, sizeClass = 'h-10 w-10' }) {
+export function ClientLogo({ initials, color, size = 40 }) {
   return (
     <span
+      style={{ width: size, height: size, minWidth: size }}
       className={cn(
-       'flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-sm font-bold text-white',
-+         sizeClass,
-          LOGO_GRADIENTS[color] ?? LOGO_GRADIENTS.indigo
-        )}
-      >
-    
+        'flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-sm font-bold text-white',
+        LOGO_GRADIENTS[color] ?? LOGO_GRADIENTS.indigo
+      )}
+    >
       {initials}
     </span>
   )
