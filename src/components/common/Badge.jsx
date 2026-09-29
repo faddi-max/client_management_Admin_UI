@@ -7,6 +7,7 @@ const VARIANTS = {
   warning: 'bg-orange-500 text-white',
   warningSoft: 'bg-orange-50 text-orange-600',
   danger: 'bg-red-500 text-white',
+  dangerSoft: 'bg-red-50 text-red-600',
   success: 'bg-green-50 text-green-600',
 }
 

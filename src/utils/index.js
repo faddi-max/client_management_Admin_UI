@@ -54,3 +54,18 @@ export function getInitials(name = '') {
     .map((n) => n[0].toUpperCase())
     .join('')
 }
+/**
+ * "14 mins ago", "Yesterday", "3 days ago", else a formatted date.
+ * @param {string|Date} date
+ */
+export function formatRelativeTime(date, locale = 'en-US') {
+  const min = Math.floor((Date.now() - new Date(date).getTime()) / 60000)
+  if (min < 1) return 'Just now'
+  if (min < 60) return `${min} min${min > 1 ? 's' : ''} ago`
+  const hr = Math.floor(min / 60)
+  if (hr < 24) return `${hr} hour${hr > 1 ? 's' : ''} ago`
+  const days = Math.floor(hr / 24)
+  if (days === 1) return 'Yesterday'
+  if (days < 7) return `${days} days ago`
+  return formatDate(date, locale)
+}
