@@ -2,7 +2,7 @@ import { clientsApi } from '@/services/api/clientsApi'
 import {
   mockFetchClients, mockCreateClient, STATUS_FILTER_OPTIONS, LEAD_FILTER_OPTIONS,
 } from '@/mocks/clientsListMock'
-
+import { mockFetchClientDetail } from '@/mocks/clientDetailMock'
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API !== 'false'
 
 // TODO(api): replace with a filters/facets endpoint
@@ -22,5 +22,12 @@ export async function fetchClients(params) {
 export async function createClient(values) {
   if (USE_MOCK) return mockCreateClient(values)
   const { data } = await clientsApi.create(values)
+  return data
+}
+
+
+export async function fetchClientDetail(id) {
+  if (USE_MOCK) return mockFetchClientDetail(id)
+  const { data } = await clientsApi.getById(id)
   return data
 }

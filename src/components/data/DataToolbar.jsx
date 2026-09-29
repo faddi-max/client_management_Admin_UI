@@ -35,7 +35,8 @@ export function SortControl({ options = [], sort, order, onChange }) {
           aria-label="Sort by"
           value={sort}
           onChange={(e) => onChange(e.target.value, order)}
-          className="cursor-pointer appearance-none bg-transparent text-xs font-semibold focus:outline-none"
+          style={{ outline: 'none', boxShadow: 'none' }}
+          className="cursor-pointer appearance-none bg-transparent text-xs font-semibold"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>

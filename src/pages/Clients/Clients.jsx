@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Download, Plus } from 'lucide-react'
 import Button from '@/components/common/Button'
 import Toast from '@/components/common/Toast'
@@ -8,8 +8,16 @@ import ResourceList from '@/components/data/ResourceList'
 import { clientsMock } from '@/mocks/clientsMock'
 import ClientStatCards from './components/ClientStatCards'
 import AddClientModal from './components/AddClientModal'
+import ClientDrawer from './components/ClientDrawer'
+import ClientGrid from './components/ClientGrid'
 import { getClientColumns } from './components/clientColumns'
-import { fetchClients, createClient, STATUS_FILTER_OPTIONS, LEAD_FILTER_OPTIONS } from './../../services/api/clientsService'
+import {
+  fetchClients,
+  createClient,
+  fetchClientDetail,
+  STATUS_FILTER_OPTIONS,
+  LEAD_FILTER_OPTIONS,
+} from './../../services/api/clientsService'
 import { downloadClientsCsv } from './components/clientsCsv'
 
 const FILTER_LABELS = {
@@ -34,11 +42,24 @@ export default function Clients() {
   const { toast, showToast } = useToast()
   const [stats, setStats] = useState(clientsMock.stats)
   const [addOpen, setAddOpen] = useState(false)
+  const [viewClient, setViewClient] = useState(null)
+  const [detail, setDetail] = useState(null)
 
   const list = useResourceList(fetchClients, {
     perPage: 10,
     initialParams: { sort: 'mrr', order: 'desc', status: 'all', lead: 'all', segment: '' },
   })
+
+  // Load extra detail for the drawer whenever a client is opened
+  useEffect(() => {
+    if (!viewClient) return
+    let cancelled = false
+    setDetail(null)
+    fetchClientDetail(viewClient.id)
+      .then((d) => { if (!cancelled) setDetail(d) })
+      .catch(() => { if (!cancelled) showToast('Could not load client details') })
+    return () => { cancelled = true }
+  }, [viewClient, showToast])
 
   // Stat-card selection is just another server filter
   const activeFilter = list.params.segment || null
@@ -48,15 +69,17 @@ export default function Clients() {
     showToast(next ? `Filter: ${FILTER_LABELS[next]}` : 'Filter cleared')
   }
 
-  const columns = useMemo(
-    () =>
-      getClientColumns({
-        onView: (c) => showToast(`Client detail for ${c.name} is the next task`),
-        onQuickAction: (type, c) => showToast(`${type} — ${c.name} (not wired yet)`),
-        onMore: (c) => showToast(`More actions for ${c.name} (not wired yet)`),
-      }),
+  // Shared by the table and the grid so both behave identically
+  const rowHandlers = useMemo(
+    () => ({
+      onView: (c) => setViewClient(c),
+      onQuickAction: (type, c) => showToast(`${type} — ${c.name} (not wired yet)`),
+      onMore: (c) => showToast(`More actions for ${c.name} (not wired yet)`),
+    }),
     [showToast]
   )
+
+  const columns = useMemo(() => getClientColumns(rowHandlers), [rowHandlers])
 
   const handleAdd = async (values) => {
     try {
@@ -102,12 +125,27 @@ export default function Clients() {
         sortOptions={SORT_OPTIONS}
         selectable
         emptyMessage="No clients match your filters."
-        renderGrid={() => (
-          <div className="flex h-48 items-center justify-center text-sm text-neutral-400">Grid view coming soon</div>
+        renderGrid={(l) => (
+          <ClientGrid
+            list={l}
+            onView={rowHandlers.onView}
+            onQuickAction={rowHandlers.onQuickAction}
+            onMore={rowHandlers.onMore}
+            emptyMessage="No clients match your filters."
+          />
         )}
       />
 
       <AddClientModal open={addOpen} onClose={() => setAddOpen(false)} onSubmit={handleAdd} />
+
+      <ClientDrawer
+        client={viewClient}
+        detail={detail}
+        open={!!viewClient}
+        onClose={() => setViewClient(null)}
+        onAssetAction={(a) => showToast(`${a.title} — vault access not wired yet`)}
+        onAction={(type) => showToast(`${type} (not wired yet)`)}
+      />
       <Toast message={toast} />
     </div>
   )

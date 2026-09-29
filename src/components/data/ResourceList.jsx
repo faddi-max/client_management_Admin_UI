@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Card from '@/components/common/Card'
-import Table from '@/components/common/Table'
+import Table from '@/components/common/DataTable'
 import DataToolbar from './DataToolbar'
 import Pagination from './Pagination'
 
