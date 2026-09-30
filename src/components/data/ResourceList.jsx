@@ -12,6 +12,7 @@ import Pagination from './Pagination'
  * @param {Array<{ key, label, options }>} [filters]  - value is read from list.params[key]
  * @param {Array<{ value, label }>} [sortOptions]
  * @param {(list) => ReactNode} [renderGrid]   - enables the list/grid toggle
+ * @param {string|((row) => string)} [rowClassName] - extra classes per table row (list view only)
  */
 export default function ResourceList({
   list,
@@ -23,6 +24,7 @@ export default function ResourceList({
   selectable = false,
   renderGrid,
   emptyMessage,
+  rowClassName,
 }) {
   const [view, setView] = useState('list')
   const { params, meta } = list
@@ -64,6 +66,7 @@ export default function ResourceList({
             selectable={selectable}
             selectedIds={list.selectedIds}
             onSelectionChange={list.setSelectedIds}
+            rowClassName={rowClassName}
           />
         )}
         <Pagination

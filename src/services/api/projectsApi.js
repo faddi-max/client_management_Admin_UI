@@ -12,4 +12,5 @@ export const projectsApi = {
   create:    (data) =>     axiosInstance.post(ENDPOINT, data),
   update:    (id, data) => axiosInstance.put(`${ENDPOINT}/${id}`, data),
   remove:    (id) =>       axiosInstance.delete(`${ENDPOINT}/${id}`),
+    getFeatured: () =>       axiosInstance.get(`${ENDPOINT}/featured`),
 }

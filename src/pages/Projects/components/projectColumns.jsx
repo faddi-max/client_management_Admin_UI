@@ -42,7 +42,9 @@ export function getProjectColumns({ onView, onQuickAction, canSeeFinance = true 
               <Icon size={17} className={meta.iconTone} />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-[15px] font-semibold text-neutral-900">{p.name}</p>
+              <p className="truncate text-[15px] font-semibold text-neutral-900 transition-colors group-hover:text-primary-700">
+                {p.name}
+              </p>
               <p className="mt-0.5 truncate text-xs text-neutral-500">
                 {p.client.name}
                 {p.client.segment && ` • ${p.client.segment}`}
@@ -55,16 +57,18 @@ export function getProjectColumns({ onView, onQuickAction, canSeeFinance = true 
     {
       key: 'milestones',
       header: 'Milestones & Burn',
-      className: 'min-w-[190px]',
+      className: 'min-w-[200px]',
       render: (p) => {
         const m = milestoneProgress(p)
         return (
-          <div>
-            <div className="flex items-baseline justify-between gap-3 whitespace-nowrap font-mono text-xs">
-              <span className="text-neutral-500">{m.total > 0 ? `${m.done} of ${m.total} milestones` : 'No milestones'}</span>
-              <span className={cn('font-bold', m.text)}>
+          <div className="max-w-[176px]">
+            <div className="flex items-start justify-between gap-2 font-mono text-xs leading-snug">
+              <span className="text-neutral-500">
+                {m.total > 0 ? `${m.done} of ${m.total} milestones` : 'No milestones'}
+              </span>
+              <span className={cn('shrink-0 font-bold', m.text)}>
                 {m.total > 0 ? `${m.percent}%` : '—'}
-                {m.halted && ' (Halted)'}
+                {m.halted && <span className="block">(Halted)</span>}
               </span>
             </div>
             <div
@@ -86,14 +90,18 @@ export function getProjectColumns({ onView, onQuickAction, canSeeFinance = true 
       header: 'Delivery Status',
       render: (p) => {
         const meta = STATUS_META[p.status] ?? STATUS_META.in_progress
-        return <Badge variant={meta.variant} dot>{meta.label}</Badge>
+        return <Badge variant={meta.variant} dot className="!text-[10px]">{meta.label}</Badge>
       },
     },
     {
       key: 'team',
       header: 'Assigned Team',
       render: (p) =>
-        p.team?.length ? <AvatarStack people={p.team} /> : <span className="text-xs text-neutral-400">Unassigned</span>,
+        p.team?.length ? (
+          <AvatarStack people={p.team} chipClassName="border border-neutral-200 bg-white text-neutral-500" />
+        ) : (
+          <span className="text-xs text-neutral-400">Unassigned</span>
+        ),
     },
     {
       key: 'deadline',

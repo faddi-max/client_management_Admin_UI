@@ -9,11 +9,16 @@ import useResourceList from '@/hooks/useResourceList'
 import { STAGES } from '@/constants/projectConfig'
 import { createProject, fetchProjects } from '@/services/api/projectsService'
 import ProjectStatCards from './components/ProjectStatCards'
+import FeaturedProjectCard from './components/FeaturedProjectCard'
 import AddProjectModal from './components/AddProjectModal'
+import ProjectDrawer from './components/ProjectDrawer'
+import ProjectGrid from './components/ProjectGrid'
 import { getProjectColumns } from './components/projectColumns'
 import useProjectStats from '../../hooks/useProjectStats'
 import useProjectFacets from '../../hooks/useProjectFacets'
 import useProjectFormOptions from '../../hooks/useProjectFormOptions'
+import useFeaturedProject from '../../hooks/useFeaturedProject'
+import useProjectDetail from '../../hooks/useProjectDetail'
 
 const SORT_OPTIONS = [
   { value: 'deadline', label: 'Deadline' },
@@ -21,12 +26,19 @@ const SORT_OPTIONS = [
   { value: 'value', label: 'Value' },
 ]
 
+// Blocked projects get a light orange row tint (matches the design)
+const rowClassName = (p) => (p.status === 'blocked' ? 'bg-orange-50/60 hover:!bg-orange-50' : '')
+
 export default function Projects() {
   const { toast, showToast } = useToast()
   const { stats, loading: statsLoading, error: statsError, refetch: refetchStats } = useProjectStats()
   const { facets, refetch: refetchFacets } = useProjectFacets()
   const { clients, clientsError, leads } = useProjectFormOptions()
+  const { project: featured, loading: featuredLoading } = useFeaturedProject()
   const [addOpen, setAddOpen] = useState(false)
+  const [viewProject, setViewProject] = useState(null)
+  const [drawerOpen, setDrawerOpen] = useState(false) // separate from viewProject so the exit animation can play
+  const { detail, loading: detailLoading, error: detailError } = useProjectDetail(viewProject?.id ?? null)
 
   const list = useResourceList(fetchProjects, {
     perPage: 10,
@@ -58,9 +70,10 @@ export default function Projects() {
     [facets]
   )
 
+  // Shared by the table and the grid so both behave identically
   const rowHandlers = useMemo(
     () => ({
-      onView: (p) => showToast(`${p.name} — project drawer not wired yet`),
+      onView: (p) => { setViewProject(p); setDrawerOpen(true) },
       onQuickAction: (type, p) => showToast(`${type} — ${p.name} (not wired yet)`),
     }),
     [showToast]
@@ -104,6 +117,12 @@ export default function Projects() {
 
       <ProjectStatCards stats={stats} loading={statsLoading} error={statsError} onRetry={refetchStats} />
 
+      <FeaturedProjectCard
+        project={featured}
+        loading={featuredLoading}
+        onSprintBoard={() => showToast('Sprint board (not wired yet)')}
+      />
+
       <TabsWithCount
         tabs={tabs}
         value={list.params.stage}
@@ -119,7 +138,16 @@ export default function Projects() {
         filters={filters}
         sortOptions={SORT_OPTIONS}
         selectable
+        rowClassName={rowClassName}
         emptyMessage="No projects match your filters."
+        renderGrid={(l) => (
+          <ProjectGrid
+            list={l}
+            onView={rowHandlers.onView}
+            onQuickAction={rowHandlers.onQuickAction}
+            emptyMessage="No projects match your filters."
+          />
+        )}
       />
 
       <AddProjectModal
@@ -129,6 +157,16 @@ export default function Projects() {
         clients={clients}
         clientsError={clientsError}
         leads={leads}
+      />
+
+      <ProjectDrawer
+        project={viewProject}
+        detail={detail}
+        detailLoading={detailLoading}
+        detailError={detailError}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onAction={(type) => showToast(`${type} (not wired yet)`)}
       />
       <Toast message={toast} />
     </div>

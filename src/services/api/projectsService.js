@@ -1,8 +1,8 @@
 import { projectsApi } from '@/services/api/projectsApi'
 import { fetchClients, LEAD_FILTER_OPTIONS } from '@/services/api/clientsService'
 import { mockFetchProjectStats, mockCreateProject } from '@/mocks/projectsMock'
-import { mockFetchProjects, mockFetchProjectFacets } from '@/mocks/projectsListMock'
-
+import { mockFetchProjects, mockFetchProjectFacets,mockFetchFeaturedProject } from '@/mocks/projectsListMock'
+import { mockFetchProjectDetail } from '@/mocks/projectDetailMock'
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API !== 'false'
 
 /**
@@ -95,5 +95,41 @@ export async function createProject(values) {
   }
   if (USE_MOCK) return mockCreateProject(payload)
   const { data } = await projectsApi.create(payload)
+  return data
+}
+
+
+/**
+ * @typedef {Object} FeaturedProject
+ * @property {string|number} id
+ * @property {string} name
+ * @property {{ id: string|number, name: string }} client
+ * @property {boolean} critical
+ * @property {string|null} targetHandover                 'YYYY-MM-DD'
+ * @property {{ id: string, name: string }} lead
+ * @property {{ current: number, total: number }} sprint
+ * @property {Array<{ key: string, label: string, milestone: string }>} stages
+ * @property {string} activeStage                         a key from `stages`
+ * @property {number} activeProgress                      0-100, progress of the active stage
+ */
+
+/** Contract: () → FeaturedProject | null. UI derives done / active / upcoming from activeStage. */
+export async function fetchFeaturedProject() {
+  if (USE_MOCK) return mockFetchFeaturedProject()
+  const { data } = await projectsApi.getFeatured()
+  return data
+}
+/**
+ * @typedef {Object} ProjectDetail  — extra payload for the drawer (list row is shown immediately)
+ * @property {string} [code]
+ * @property {string} [description]
+ * @property {{ name: string, title?: string }} [lead]
+ * @property {Array<{ id: string, name: string, done: boolean }>} [milestones]
+ */
+
+/** Contract: id → ProjectDetail | null. Sections without data are simply not rendered. */
+export async function fetchProjectDetail(id) {
+  if (USE_MOCK) return mockFetchProjectDetail(id)
+  const { data } = await projectsApi.getById(id)
   return data
 }

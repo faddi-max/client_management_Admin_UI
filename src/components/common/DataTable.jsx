@@ -21,6 +21,8 @@ const VARIANTS = {
 /**
  * columns: [{ key, header, render?, align?: 'left'|'center'|'right', className?, headerClassName? }]
  * selectable + selectedIds + onSelectionChange(ids) enable row checkboxes.
+ * rowClassName: string | (row) => string — extra classes per row (e.g. tint a blocked row).
+ *   Every row also carries `group`, so cells can use group-hover:* styles.
  */
 export default function Table({
   columns = [],
@@ -34,6 +36,7 @@ export default function Table({
   selectedIds = [],
   onSelectionChange,
   rowKey = 'id',
+  rowClassName,
 }) {
   const v = VARIANTS[variant] ?? VARIANTS.default
   const colSpan = columns.length + (selectable ? 1 : 0)
@@ -114,7 +117,15 @@ export default function Table({
               const id = row[rowKey] ?? rowIdx
               const selected = selectedIds.includes(id)
               return (
-                <tr key={id} className={cn(v.row, selected && 'bg-indigo-50/40')}>
+                <tr
+                  key={id}
+                  className={cn(
+                    v.row,
+                    'group',
+                    selected && 'bg-indigo-50/40',
+                    typeof rowClassName === 'function' ? rowClassName(row) : rowClassName
+                  )}
+                >
                   {selectable && (
                     <td className="w-14 py-3.5 pl-5 pr-0">
                       <Checkbox checked={selected} onChange={() => toggleOne(id)} aria-label="Select row" />

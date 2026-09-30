@@ -153,3 +153,26 @@ export async function createProjectRecord(payload) {
   DB.unshift(record)
   return record
 }
+/** Mock for `GET /projects/featured`. Reuses project 101 so both views stay in sync. */
+export async function mockFetchFeaturedProject() {
+  await delay(250)
+  const p = DB.find((x) => x.id === 101)
+  return {
+    id: p.id,
+    name: p.name,
+    client: { id: p.client.id, name: p.client.name },
+    critical: true,
+    targetHandover: p.deadline,
+    lead: { id: 'u2', name: 'Marcus Vance' },
+    sprint: { current: 6, total: 8 },
+    stages: [
+      { key: 'planning', label: 'Planning', milestone: 'Arch Spec Signed' },
+      { key: 'requirements', label: 'Requirements', milestone: '32 User Stories Lock' },
+      { key: 'development', label: 'Development', milestone: 'Cluster Sync' },
+      { key: 'testing', label: 'Testing', milestone: 'QA Stress Test Suite' },
+      { key: 'deployment', label: 'Deployment', milestone: 'Multi-region Go-live' },
+    ],
+    activeStage: 'development',
+    activeProgress: 82,
+  }
+}

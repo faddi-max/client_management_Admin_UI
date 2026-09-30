@@ -29,6 +29,7 @@ export const projectIcon = (key) => PROJECT_ICONS[key] ?? Briefcase
 
 // ── Dates (deadline is 'YYYY-MM-DD'; parsed as LOCAL so it never shifts a day) ──
 const DATE_FMT = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+const MD_FMT = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' })
 
 function parseLocalDate(iso) {
   const [y, m, d] = iso.split('-').map(Number)
@@ -38,6 +39,17 @@ function parseLocalDate(iso) {
 export function daysUntil(iso, now = new Date()) {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   return Math.round((parseLocalDate(iso) - today) / 86400000)
+}
+
+/** "Oct 28 (In 4 days)" — used by the featured project card. */
+export function handoverLabel(iso, now = new Date()) {
+  if (!iso) return 'Not set'
+  const date = MD_FMT.format(parseLocalDate(iso))
+  const days = daysUntil(iso, now)
+  if (days < 0) return `${date} (${-days} day${days === -1 ? '' : 's'} overdue)`
+  if (days === 0) return `${date} (Today)`
+  if (days === 1) return `${date} (Tomorrow)`
+  return `${date} (In ${days} days)`
 }
 
 const plural = (n) => `${n} DAY${n === 1 ? '' : 'S'}`
@@ -53,8 +65,8 @@ export function deadlineInfo(project, now = new Date()) {
   }
   const days = daysUntil(project.deadline, now)
   if (days < 0) return { primary: date, primaryTone: 'text-red-600', note: `OVERDUE ${plural(-days)}`, noteTone: 'text-red-600' }
-  if (days === 0) return { primary: 'Today', primaryTone: 'text-neutral-900', note: 'DUE TODAY', noteTone: 'text-orange-500' }
-  if (days === 1) return { primary: 'Tomorrow', primaryTone: 'text-neutral-900', note: 'DUE TOMORROW', noteTone: 'text-orange-500' }
+  if (days === 0) return { primary: 'Today', primaryTone: 'text-neutral-900', note: 'DUE TODAY', noteTone: 'text-amber-700' }
+  if (days === 1) return { primary: 'Tomorrow', primaryTone: 'text-neutral-900', note: 'DUE TOMORROW', noteTone: 'text-amber-700' }
   return {
     primary: date,
     primaryTone: 'text-neutral-900',
@@ -64,13 +76,13 @@ export function deadlineInfo(project, now = new Date()) {
 }
 
 // ── Milestones ───────────────────────────────────────────────────
-/** "4 of 6" → percent + bar/text tones. Blocked = orange, 100% = green. */
+/** "4 of 6" → percent + bar/text tones. Blocked = orange bar + red text, 100% = green. */
 export function milestoneProgress({ milestones, status }) {
   const { done = 0, total = 0 } = milestones ?? {}
   const percent = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0
   const halted = status === 'blocked'
   const tone = halted
-    ? { bar: 'bg-orange-500', text: 'text-orange-600' }
+    ? { bar: 'bg-orange-500', text: 'text-red-600' }
     : percent === 100
       ? { bar: 'bg-green-500', text: 'text-green-600' }
       : { bar: 'bg-primary-600', text: 'text-neutral-900' }
@@ -78,9 +90,16 @@ export function milestoneProgress({ milestones, status }) {
 }
 
 // ── Value & invoicing (finance data — gate with canSeeFinance in the columns) ──
+// Assumption (not in PRD/design): invoiced >= 50% of value is highlighted in indigo.
+const INVOICED_HIGHLIGHT = 0.5
+
 export function invoicingNote({ value, invoiced, paid }) {
   if (!(value > 0)) return { text: 'No budget set', tone: 'text-neutral-400' }
-  if (paid >= value) return { text: 'Paid in Full', tone: 'font-semibold text-green-600' }
+  if (paid >= value) return { text: 'Paid in Full', tone: 'font-semibold text-green-700' }
   if (!(invoiced > 0)) return { text: 'Not invoiced', tone: 'text-neutral-400' }
-  return { text: `${Math.round((invoiced / value) * 100)}% invoiced (${compactMoney(invoiced)})`, tone: 'text-neutral-500' }
+  const ratio = invoiced / value
+  return {
+    text: `${Math.round(ratio * 100)}% Invoiced (${compactMoney(invoiced)})`,
+    tone: ratio >= INVOICED_HIGHLIGHT ? 'font-medium text-primary-600' : 'text-neutral-500',
+  }
 }
