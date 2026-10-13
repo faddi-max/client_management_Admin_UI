@@ -2,7 +2,6 @@ import { useState, useMemo, useCallback } from 'react'
 import Card from '@/components/common/Card'
 import Table from '@/components/common/DataTable'
 import Pagination from '@/components/data/Pagination'
-import Badge from '@/components/common/Badge'
 import Toast from '@/components/common/Toast'
 import TabsWithCount from '@/components/data/TabsWithCount'
 import useToast from '@/hooks/useToast'
@@ -18,12 +17,14 @@ import AddCredentialModal from './components/AddCredentialModal'
 import VaultToolbar from './components/VaultToolbar'
 import { VaultStatusCard, SecurityNotice } from './components/VaultBanners'
 import { getCredentialColumns } from './components/credentialColumns'
+import AuditHistoryDrawer from './components/AuditHistoryDrawer'
 
 export default function CredentialsVault() {
   const { toast, showToast } = useToast()
   const { stats, vault, facets, loading, error, refetch: refetchOverview } = useCredentialsOverview()
   const { clients, clientsError } = useProjectFormOptions()
   const [addOpen, setAddOpen] = useState(false)
+  const [auditCredential, setAuditCredential] = useState(null)
 
   const list = useResourceList(fetchCredentials, {
     perPage: 10,
@@ -76,7 +77,13 @@ export default function CredentialsVault() {
     () => ({
       onReveal: handleReveal,
       onCopy: handleCopy,
-      onQuickAction: (type, c) => showToast(`${type} — ${c.name} (not wired yet)`),
+      onQuickAction: (type, c) => {
+        if (type === 'audit history') {
+          setAuditCredential(c)
+          return
+        }
+        showToast(`${type} — ${c.name} (not wired yet)`)
+      },
     }),
     [handleReveal, handleCopy, showToast]
   )
@@ -168,6 +175,11 @@ export default function CredentialsVault() {
         clientsError={clientsError}
       />
       <Toast message={toast} />
+      <AuditHistoryDrawer
+        credential={auditCredential}
+        onClose={() => setAuditCredential(null)}
+        onExport={() => showToast(`Audit CSV export for ${auditCredential?.name} is not wired yet`)}
+      />
     </div>
   )
 }

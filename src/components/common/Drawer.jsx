@@ -11,7 +11,7 @@ const prefersReducedMotion = () =>
  * Right-side sliding panel. Stays mounted while the exit animation plays, so the
  * parent should keep the drawer's content (e.g. the selected row) until it has closed.
  */
-export default function Drawer({ open, onClose, header, headerActions, children, footer }) {
+export default function Drawer({ open, onClose, header, headerActions, children, footer, panelClassName = '', backdropClassName = '' }) {
   // Mounted = open OR still animating out. Set during render (React's "derive state" pattern).
   const [mounted, setMounted] = useState(open)
   if (open && !mounted) setMounted(true)
@@ -66,7 +66,7 @@ export default function Drawer({ open, onClose, header, headerActions, children,
     <div className={`fixed inset-0 z-50 ${open ? '' : 'pointer-events-none'}`}>
       <div
         ref={backdropRef}
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className={`absolute inset-0 bg-black/40 backdrop-blur-sm ${backdropClassName}`}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -74,7 +74,7 @@ export default function Drawer({ open, onClose, header, headerActions, children,
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        className="absolute inset-y-0 right-0 flex w-full max-w-xl flex-col bg-white shadow-xl will-change-transform"
+        className={`absolute inset-y-0 right-0 flex w-full max-w-xl flex-col bg-white shadow-xl will-change-transform ${panelClassName}`}
       >
         <div className="flex items-start justify-between gap-3 border-b border-neutral-100 px-5 py-4">
           <div className="min-w-0 flex-1">{header}</div>
