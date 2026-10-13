@@ -4,6 +4,7 @@ const ENDPOINT = '/invoices'
 
 export const invoicesApi = {
   getAll:  (params) =>   axiosInstance.get(ENDPOINT, { params }),
+  getFacets: () =>       axiosInstance.get(`${ENDPOINT}/facets`),
   getById: (id) =>       axiosInstance.get(`${ENDPOINT}/${id}`),
   create:  (data) =>     axiosInstance.post(ENDPOINT, data),
   update:  (id, data) => axiosInstance.put(`${ENDPOINT}/${id}`, data),

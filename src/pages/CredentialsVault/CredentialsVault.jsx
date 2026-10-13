@@ -31,7 +31,7 @@ export default function CredentialsVault() {
     initialParams: { category: 'all', client: 'all', env: 'all' },
   })
 
-  // Design shows a count on "All" only
+
   const tabs = useMemo(
     () => [{ value: 'all', label: 'All', count: facets?.total }, ...CREDENTIAL_CATEGORIES],
     [facets]
