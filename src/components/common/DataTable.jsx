@@ -23,6 +23,9 @@ const VARIANTS = {
  * selectable + selectedIds + onSelectionChange(ids) enable row checkboxes.
  * rowClassName: string | (row) => string — extra classes per row (e.g. tint a blocked row).
  *   Every row also carries `group`, so cells can use group-hover:* styles.
+ * onRowClick: (row) => void — makes rows clickable and keyboard-focusable (Enter / Space).
+ *   Buttons inside cells should call e.stopPropagation() so they don't also trigger it.
+ *   The selection checkbox already does.
  */
 export default function Table({
   columns = [],
@@ -37,6 +40,7 @@ export default function Table({
   onSelectionChange,
   rowKey = 'id',
   rowClassName,
+  onRowClick,
 }) {
   const v = VARIANTS[variant] ?? VARIANTS.default
   const colSpan = columns.length + (selectable ? 1 : 0)
@@ -119,15 +123,31 @@ export default function Table({
               return (
                 <tr
                   key={id}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  onKeyDown={
+                    onRowClick
+                      ? (e) => {
+                          // Only when the row itself is focused, not a button/checkbox inside it
+                          if (e.target !== e.currentTarget) return
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            onRowClick(row)
+                          }
+                        }
+                      : undefined
+                  }
+                  tabIndex={onRowClick ? 0 : undefined}
                   className={cn(
                     v.row,
                     'group',
+                    onRowClick && 'cursor-pointer focus:outline-none focus-visible:bg-indigo-50/70',
                     selected && 'bg-indigo-50/40',
                     typeof rowClassName === 'function' ? rowClassName(row) : rowClassName
                   )}
                 >
                   {selectable && (
-                    <td className="w-14 py-3.5 pl-5 pr-0">
+                    // Checkbox clicks must not also open the row
+                    <td className="w-14 py-3.5 pl-5 pr-0" onClick={(e) => e.stopPropagation()}>
                       <Checkbox checked={selected} onChange={() => toggleOne(id)} aria-label="Select row" />
                     </td>
                   )}

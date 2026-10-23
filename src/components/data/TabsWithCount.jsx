@@ -7,13 +7,24 @@ import { cn } from '@/utils'
  * @param {Array<{ value: string, label: string, count?: number }>} tabs
  * @param {string} value               - selected tab value
  * @param {(value: string) => void} onChange
+ * @param {'pill'|'plain'} [variant]   - 'pill' (default): inactive tabs are bordered white buttons.
+ *                                       'plain': inactive tabs are flat text (for use inside a Card toolbar).
+ * @param {string} [className]
  */
-export default function TabsWithCount({ tabs = [], value, onChange, ariaLabel = 'Filter' }) {
+const INACTIVE = {
+  pill: 'border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50',
+  plain: 'text-neutral-600 hover:bg-indigo-50',
+}
+
+export default function TabsWithCount({ tabs = [], value, onChange, ariaLabel = 'Filter', variant = 'pill', className }) {
   return (
     <div
       role="group"
       aria-label={ariaLabel}
-      className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className={cn(
+        'flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+        className
+      )}
     >
       {tabs.map((t) => {
         const active = t.value === value
@@ -26,9 +37,7 @@ export default function TabsWithCount({ tabs = [], value, onChange, ariaLabel = 
             className={cn(
               'inline-flex shrink-0 items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400',
-              active
-                ? 'bg-primary-600 text-white shadow-sm'
-                : 'border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
+              active ? 'bg-primary-600 text-white shadow-sm' : INACTIVE[variant] ?? INACTIVE.pill
             )}
           >
             {t.label}
