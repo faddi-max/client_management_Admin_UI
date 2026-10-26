@@ -1,62 +1,50 @@
-import { AlertTriangle, BadgeDollarSign, Landmark, Timer } from 'lucide-react'
 import Card from '@/components/common/Card'
-import { cn } from '@/utils'
+import { formatCurrency } from '@/utils'
 
-const STAT_CARDS = [
-  {
-    label: 'Total Invoiced', value: '$284,500', detail: '+14.2%', description: 'across 18 active contracts', icon: Landmark,
-    progress: 'w-[84%]', progressTone: 'bg-primary-600', iconTone: 'text-primary-600', iconWrap: 'bg-indigo-50', accent: 'bg-indigo-50',
-  },
-  {
-    label: 'Collected / Settled', value: '$221,450', detail: '77.8%', description: 'overall recovery rate', icon: BadgeDollarSign,
-    progress: 'w-[78%]', progressTone: 'bg-primary-600', iconTone: 'text-neutral-600', iconWrap: 'bg-indigo-50', accent: 'bg-blue-50',
-  },
-  {
-    label: 'Pending Payment', value: '$48,200', detail: '7 milestones', description: 'scheduled within 14d', icon: Timer,
-    progress: 'w-[44%]', progressTone: 'bg-indigo-300', iconTone: 'text-primary-600', iconWrap: 'bg-indigo-50', accent: 'bg-violet-50',
-  },
-  {
-    label: 'Overdue Balance', value: '$14,850', detail: '3 Client Accounts', description: 'Action required', icon: AlertTriangle,
-    progress: 'w-full', progressTone: 'bg-orange-500', iconTone: 'text-orange-600', iconWrap: 'bg-orange-100', overdue: true,
-  },
-]
+const GRID = 'grid grid-cols-1 gap-4 min-[560px]:grid-cols-2 lg:grid-cols-4'
 
-function CurrencyValue({ value, overdue }) {
+function StatsSkeleton() {
   return (
-    <p className={cn('absolute left-4 top-[62px] text-[30px] font-extrabold leading-none tracking-tight text-neutral-900', overdue && 'text-orange-500')}>
-      {value}<span className={cn('text-base font-medium text-neutral-500', overdue && 'text-orange-700')}>.00</span>
-    </p>
+    <div className={GRID}>
+      {Array.from({ length: 4 }, (_, i) => (
+        <Card key={i} padding="p-4" className="h-[96px] animate-pulse rounded-xl">
+          <div className="h-2.5 w-20 rounded bg-neutral-100" />
+          <div className="mt-3 h-6 w-24 rounded bg-neutral-100" />
+          <div className="mt-3 h-2.5 w-28 rounded bg-neutral-100" />
+        </Card>
+      ))}
+    </div>
   )
 }
 
-export default function InvoiceStatCards() {
+export default function InvoiceStatCards({ stats, loading, error, onRetry }) {
+  if (loading && !stats) return <StatsSkeleton />
+
+  if (!stats) {
+    return (
+      <Card className="py-8 text-center">
+        <p className="text-sm text-red-500">{error ? 'Could not load invoice stats.' : 'No invoice stats available.'}</p>
+        <button type="button" onClick={onRetry} className="mt-2 text-xs font-semibold text-primary-600 hover:underline">
+          Try again
+        </button>
+      </Card>
+    )
+  }
+
+  const cards = [
+    { label: 'Total invoices', value: stats.total, note: 'This billing period' },
+    { label: 'Outstanding', value: formatCurrency(stats.outstanding), note: 'Needs attention' },
+    { label: 'Paid this month', value: formatCurrency(stats.paidThisMonth), note: 'On track' },
+    { label: 'Overdue', value: stats.overdue, note: 'Follow up required' },
+  ]
+
   return (
-    <section className="grid grid-cols-1 gap-3 min-[640px]:grid-cols-2 xl:grid-cols-4 xl:gap-4" aria-label="Invoice financial summary">
-      {STAT_CARDS.map(({ label, value, detail, description, icon: Icon, progress, progressTone, iconTone, iconWrap, accent, overdue }) => (
-        <Card
-          key={label}
-          padding="p-4"
-          className={cn('relative h-[156px] overflow-hidden border-neutral-100 shadow-none', overdue && 'border-r-[8px] border-r-orange-500')}
-        >
-          {!overdue && <span className={cn('absolute -bottom-10 -right-9 h-[110px] w-[110px] rounded-full', accent)} aria-hidden="true" />}
-          <div className="relative flex items-start justify-between gap-3">
-            <p className={cn('pt-2 text-[10px] font-bold uppercase tracking-wider text-neutral-500', overdue && 'text-orange-700')}>
-              {label}
-            </p>
-            <span className={cn('flex h-8 w-8 items-center justify-center rounded-lg', iconWrap)}>
-              <Icon size={16} className={iconTone} />
-            </span>
-          </div>
-          <CurrencyValue value={value} overdue={overdue} />
-          <p className={cn('absolute left-4 top-[99px] text-xs text-neutral-500', overdue && 'text-orange-700')}>
-            <span className={cn('font-semibold', overdue ? 'rounded bg-orange-100 px-1.5 py-0.5 text-orange-700' : 'text-primary-700')}>
-              {detail}
-            </span>{' '}
-            <span className={overdue ? 'font-medium' : ''}>{description}</span>
-          </p>
-          <div className={cn('absolute inset-x-4 bottom-[18px] h-1.5 overflow-hidden rounded-full bg-indigo-100', overdue && 'bg-orange-50')}>
-            <span className={cn('block h-full rounded-full', progress, progressTone)} />
-          </div>
+    <section className={GRID} aria-label="Invoice summary">
+      {cards.map((c) => (
+        <Card key={c.label} padding="p-4" className="rounded-xl border-neutral-200 shadow-sm">
+          <p className="text-xs font-medium text-neutral-700">{c.label}</p>
+          <p className="mt-2 text-xl font-bold leading-tight text-neutral-900">{c.value}</p>
+          <p className="mt-1.5 text-[11px] text-neutral-400">{c.note}</p>
         </Card>
       ))}
     </section>

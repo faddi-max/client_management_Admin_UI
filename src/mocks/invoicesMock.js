@@ -1,3 +1,5 @@
+import { calculateInvoiceTotals } from '@/utils/invoiceTotals'
+
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const clients = [
@@ -45,7 +47,12 @@ export async function mockFetchInvoices(params = {}) {
     if (status !== 'all' && invoice.status !== status) return false
     if (client !== 'all' && String(invoice.client.id) !== String(client)) return false
     if (dateRange === 'oct_2024' && !invoice.issueDate.includes('Oct')) return false
-    return !q || [invoice.number, invoice.client.name, invoice.project].some((value) => value.toLowerCase().includes(q))
+    return (
+      !q ||
+      [invoice.number, invoice.client.name, invoice.client.contact ?? '', invoice.project].some((value) =>
+        value.toLowerCase().includes(q)
+      )
+    )
   })
   return { items: structuredClone(items.slice((page - 1) * perPage, page * perPage)), meta: { total: items.length, page, perPage } }
 }
@@ -63,25 +70,70 @@ export async function mockFetchInvoiceFacets() {
   }
 }
 
+export async function mockFetchInvoiceStats() {
+  await delay(140)
+  const sum = (rows) => rows.reduce((t, i) => t + i.amount, 0)
+  return {
+    total: DB.length,
+    outstanding: sum(DB.filter((i) => i.status === 'pending' || i.status === 'overdue')),
+    paidThisMonth: sum(DB.filter((i) => i.status === 'paid')),
+    overdue: DB.filter((i) => i.status === 'overdue').length,
+  }
+}
+
 export async function mockCreateInvoice(payload) {
   await delay(280)
-  const client = clients.find((item) => String(item.id) === String(payload.clientId))
-  if (!client) throw new Error('Client not found')
+  const totals = calculateInvoiceTotals(payload)
+  const match = clients.find((c) => c.email.toLowerCase() === payload.client.email.toLowerCase())
+  const client = {
+    id: match?.id ?? null,
+    name: payload.client.company || payload.client.name,
+    contact: payload.client.name,
+    email: payload.client.email,
+    address: payload.client.address,
+  }
   const number = `INV-2024-${String(90 + DB.length).padStart(3, '0')}`
   const displayDate = (date) => new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
   const record = {
     id: `inv-${Date.now()}`,
     number,
     client,
-    project: payload.project.trim(),
+    project: payload.lineItems[0].description, // search still matches on this field
     issueDate: displayDate(payload.issueDate),
     dueDate: displayDate(payload.dueDate),
-    amount: Number(payload.amount),
-    status: 'draft',
+    amount: totals.total,
+    status: payload.status,
     daysOverdue: 0,
-    paymentMethod: payload.paymentTerms,
+    paymentMethod: payload.paymentMethod,
+    paymentTerms: payload.paymentTerms,
+    lineItems: payload.lineItems,
+    discountPercent: payload.discountPercent,
+    taxPercent: payload.taxPercent,
+    paymentInstructions: payload.paymentInstructions,
+    notes: payload.notes,
     createdAt: displayDate(payload.issueDate),
   }
   DB = [record, ...DB]
   return structuredClone(record)
+}
+
+export async function mockFetchInvoiceDetail(id) {
+  await delay(150)
+  const inv = DB.find((i) => i.id === id)
+  if (!inv) return null
+  const created = Boolean(inv.lineItems)
+  // Seeded rows have no line items: show the invoice as a single line
+  const lineItems = inv.lineItems ?? [{ description: inv.project, quantity: 1, unitPrice: inv.amount }]
+  const totals = created
+    ? calculateInvoiceTotals({ lineItems, discountPercent: inv.discountPercent, taxPercent: inv.taxPercent })
+    : { subtotal: inv.amount, discount: 0, tax: 0, total: inv.amount }
+  return structuredClone({
+    lineItems,
+    totals,
+    address: inv.client.address ?? null,
+    paymentMethod: inv.paymentMethod,
+    paymentTerms: inv.paymentTerms ?? null,
+    instructions: inv.paymentInstructions ?? null,
+    notes: inv.notes ?? null,
+  })
 }
